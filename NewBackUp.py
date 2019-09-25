@@ -30,12 +30,6 @@ iteritems = dict.iteritems
 # starred = client.get_folder(user["starred_folder_id"])
 # print "There are", len(starred["children"]), "items in your starred folder"
 
-# request = Request(
-#     url=client._url("blob/%s/%s" % (thread_id, blob_id)))
-# if client.access_token:
-#     request.add_header("Authorization", "Bearer " + client.access_token)
-# try:
-#     re = urlopen(request, timeout=client.request_timeout)
 def Traverse(client,foldid):
     folder = client.get_folder(foldid);
     for child in folder["children"]:
@@ -46,9 +40,15 @@ def Traverse(client,foldid):
             TraverseThread(client,threadid)
 
 def TraverseThread(client,threadid):
-    thread = client.get_thread(threadid)
-    title =  thread["thread"]["link"]
-    print title
+    # thread = client.get_thread(threadid)
+    # title =  thread["thread"]["link"]
+    # print title
+    request = Request(url=client._url("threads/%s/export/docx" % (threadid)))
+    if client.access_token:
+        request.add_header("Authorization", "Bearer " + client.access_token)
+        re = urlopen(request, timeout=500)
+        with  open("./haha","w") as thedox:
+            thedox.write(re.read())
 
 import quip
 client = quip.QuipClient(access_token="ZE5CQU1BcmtwRnQ=|1600850712|2bH//fDrlft1cx03ktiYFA9kfST9arohKRuPd+WmL4k=")
