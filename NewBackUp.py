@@ -31,23 +31,22 @@ iteritems = dict.iteritems
 # print "There are", len(starred["children"]), "items in your starred folder"
 
 def Traverse(client,foldid):
-    folder = client.get_folder(foldid);
+    folder = client.get_folder(foldid)
     for child in folder["children"]:
         if "folder_id" in child:
             Traverse(client,child["folder_id"])
         elif "thread_id" in child:
-            threadid = child["thread_id"];
+            threadid = child["thread_id"]
             TraverseThread(client,threadid)
 
 def TraverseThread(client,threadid):
-    # thread = client.get_thread(threadid)
-    # title =  thread["thread"]["link"]
-    # print title
+    thread = client.get_thread(threadid)
+    title =  thread["thread"]["title"]
     request = Request(url=client._url("threads/%s/export/docx" % (threadid)))
     if client.access_token:
         request.add_header("Authorization", "Bearer " + client.access_token)
         re = urlopen(request, timeout=500)
-        with  open("./haha","w") as thedox:
+        with  open("./%s.docx" % (title),"w") as thedox:
             thedox.write(re.read())
 
 import quip
