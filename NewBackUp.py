@@ -9,6 +9,7 @@ import xml.etree.cElementTree
 
 import urllib
 import urllib2
+import pdfkit
 
 Request = urllib2.Request
 urlencode = urllib.urlencode
@@ -17,8 +18,8 @@ HTTPError = urllib2.HTTPError
 
 iteritems = dict.iteritems
 
-
-
+path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
 # except HTTPError as error:
 # try:
 # # Extract the developer-friendly error message from the response
@@ -37,20 +38,21 @@ def Traverse(client,foldid):
             Traverse(client,child["folder_id"])
         elif "thread_id" in child:
             threadid = child["thread_id"]
-            TraverseThread(client,threadid)
+            DealwithThread(client,threadid)
 
-def TraverseThread(client,threadid):
+def DealwithThread(client,threadid):
     thread = client.get_thread(threadid)
-    title =  thread["thread"]["title"]
-    request = Request(url=client._url("threads/%s/export/docx" % (threadid)))
-    if client.access_token:
-        request.add_header("Authorization", "Bearer " + client.access_token)
-        re = urlopen(request, timeout=500)
-        with  open("./%s.docx" % (title),"w") as thedox:
-            thedox.write(re.read())
+    link =  thread["thread"]["link"]
+    title = thread["thread"]["title"]
+    pdfkit.from_url(link,"hah.pdf",configuration=config)
+    # if client.access_token:
+    #     request.add_header("Authorization", "Bearer " + client.access_token)
+    #     re = urlopen(request, timeout=500)
+    #     with  open("./%s.txt" % (title),"w") as thedox:
+    #         thedox.write(re.read())
 
 import quip
-client = quip.QuipClient(access_token="ZE5CQU1BcmtwRnQ=|1600850712|2bH//fDrlft1cx03ktiYFA9kfST9arohKRuPd+WmL4k=")
+client = quip.QuipClient(access_token="ZE5CQU1BcmtwRnQ=|1600850712|2bH//fDrlft1cx03ktiYFA9kfST9arohKRuPd+WmL4k=",request_timeout=500)
 user = client.get_authenticated_user()
 # Traverse(client,user["private_folder_id"])
 for i in user["group_folder_ids"]:
